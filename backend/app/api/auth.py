@@ -5,7 +5,7 @@ from sqlalchemy.orm import Session
 from app.core.database import get_db
 from app.core.security import create_access_token, verify_password, get_password_hash
 from app.schemas.water_body import UserCreate, UserResponse, LoginRequest
-from app.models.water_body import User
+from app.models.water_body import User, WaterBody
 from app.services.email_service import EmailService
 import logging
 
@@ -147,6 +147,25 @@ async def login(credentials: LoginRequest, db: Session = Depends(get_db)):
             status_code=status.HTTP_403_FORBIDDEN,
             detail="User account is inactive",
         )
+    
+    # Send current encroachment report to the user on login
+    if user.email:
+        try:
+            encroached_bodies = db.query(WaterBody).filter(WaterBody.is_encroached == True).all()
+            if encroached_bodies:
+                water_bodies_data = [
+                    EmailService._build_report_water_body_data(wb, db=db)
+                    for wb in encroached_bodies
+                ]
+                EmailService.send_encroachment_report(
+                    recipient_email=user.email,
+                    water_bodies_data=water_bodies_data,
+                )
+                logger.info(f"✉️  Encroachment report email sent to {user.email} on login")
+            else:
+                logger.info(f"No encroached water bodies found for login email to {user.email}")
+        except Exception as e:
+            logger.error(f"Failed to send login encroachment report to {user.email}: {str(e)}")
     
     access_token_expires = timedelta(hours=24)
     access_token = create_access_token(

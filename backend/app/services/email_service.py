@@ -17,9 +17,22 @@ class EmailService:
     """Service for sending emails via SMTP"""
 
     @staticmethod
-    def _build_report_water_body_data(water_body) -> dict:
+    def _build_report_water_body_data(water_body, db=None) -> dict:
         """Convert a WaterBody ORM row into report data."""
         encroach_pct = float(getattr(water_body, "last_water_loss_percent", 0) or 0)
+
+        if encroach_pct == 0 and db is not None and getattr(water_body, "id", None) is not None:
+            from app.models.water_body import HistoricalRecord
+
+            latest_record = (
+                db.query(HistoricalRecord)
+                .filter(HistoricalRecord.water_body_id == water_body.id)
+                .order_by(HistoricalRecord.recorded_at.desc())
+                .first()
+            )
+            if latest_record and latest_record.encroachment_percentage is not None:
+                encroach_pct = float(latest_record.encroachment_percentage or 0)
+
         severity = "CRITICAL" if encroach_pct >= 20 else "HIGH"
 
         return {
@@ -54,7 +67,7 @@ class EmailService:
             return {"sent": 0, "failed": 0, "recipients": recipient_emails}
 
         water_bodies_data = [
-            EmailService._build_report_water_body_data(water_body)
+            EmailService._build_report_water_body_data(water_body, db=db)
             for water_body in encroached_bodies
         ]
 

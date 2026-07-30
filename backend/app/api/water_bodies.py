@@ -24,8 +24,6 @@ async def create_water_body(
     db.add(db_water_body)
     db.commit()
     db.refresh(db_water_body)
-<<<<<<< HEAD
-=======
 
     if db_water_body.is_encroached:
         try:
@@ -55,7 +53,6 @@ async def create_water_body(
         except Exception as e:
             logger.error(f"Failed to send creation-time encroachment notification: {str(e)}")
 
->>>>>>> f977997 (Initial clean import of Erodai project)
     return db_water_body
 
 
@@ -120,34 +117,6 @@ async def update_water_body(
     # Send encroachment alert if status changed to encroached
     if is_encroached_changing:
         try:
-<<<<<<< HEAD
-            # Get list of recipient emails
-            recipient_emails = []
-            
-            # Add all active users
-            active_users = db.query(User).filter(User.is_active == True).all()
-            for user in active_users:
-                if user.email:
-                    recipient_emails.append(user.email)
-            
-            if recipient_emails:
-                # Send alerts
-                encroachment_details = {
-                    "name": water_body.name,
-                    "type": water_body.body_type or "Unknown",
-                    "area": water_body.area_sq_km,
-                    "detected_date": datetime.utcnow().strftime("%Y-%m-%d %H:%M:%S")
-                }
-                
-                stats = EmailService.send_bulk_encroachment_alert(
-                    recipient_emails=recipient_emails,
-                    water_body_name=water_body.name,
-                    encroachment_details=encroachment_details,
-                )
-                
-                logger.info(f"Encroachment notification sent for {water_body.name}: "
-                           f"{stats['sent']} successful, {stats['failed']} failed")
-=======
             encroachment_details = {
                 "water_body_details": {
                     "name": water_body.name,
@@ -179,7 +148,6 @@ async def update_water_body(
             report_stats = EmailService.send_encroachment_report_to_active_users(db=db)
             logger.info(f"Encroachment report sent for {water_body.name}: "
                         f"{report_stats['sent']} successful, {report_stats['failed']} failed")
->>>>>>> f977997 (Initial clean import of Erodai project)
         except Exception as e:
             logger.error(f"Failed to send encroachment notification: {str(e)}")
     
