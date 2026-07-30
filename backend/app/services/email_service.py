@@ -5,21 +5,16 @@ from email.mime.multipart import MIMEMultipart
 from app.core.config import settings
 import logging
 from datetime import datetime
-<<<<<<< HEAD
-=======
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
     from sqlalchemy.orm import Session
->>>>>>> f977997 (Initial clean import of Erodai project)
 
 logger = logging.getLogger(__name__)
 
 
 class EmailService:
     """Service for sending emails via SMTP"""
-<<<<<<< HEAD
-=======
 
     @staticmethod
     def _build_report_water_body_data(water_body) -> dict:
@@ -127,7 +122,6 @@ class EmailService:
             water_body_name=water_body_name,
             encroachment_details=encroachment_details,
         )
->>>>>>> f977997 (Initial clean import of Erodai project)
     
     @staticmethod
     def send_encroachment_alert(
@@ -164,8 +158,6 @@ class EmailService:
             msg["To"] = recipient_email
             
             # Create HTML email body
-<<<<<<< HEAD
-=======
             water_body_details = {
                 "name": water_body_name,
                 **(encroachment_details.get("water_body_details", {}) if encroachment_details else {}),
@@ -196,7 +188,6 @@ class EmailService:
                 skip_keys={"water_body_details"},
             )
 
->>>>>>> f977997 (Initial clean import of Erodai project)
             html_body = f"""
             <html>
                 <body style="font-family: Arial, sans-serif; line-height: 1.6; color: #333;">
@@ -208,24 +199,18 @@ class EmailService:
                             
                             <div style="background-color: #f9f9f9; padding: 15px; border-radius: 4px; margin: 15px 0;">
                                 <h3 style="color: #0284C7; margin-top: 0;">{water_body_name}</h3>
-<<<<<<< HEAD
-=======
 
                                 <p><strong>Water Body Details:</strong></p>
                                 <ul style="margin: 10px 0; padding-left: 20px;">
                                     {water_body_details_html or '<li>No additional water body details available</li>'}
                                 </ul>
->>>>>>> f977997 (Initial clean import of Erodai project)
                                 
                                 {f'<p><strong>Encroachment Details:</strong></p>' if encroachment_details else ''}
                                 {f'<ul style="margin: 10px 0; padding-left: 20px;">' if encroachment_details else ''}
                                 {f'<li>Percentage: {encroachment_details.get("percentage", "N/A")}%</li>' if encroachment_details and encroachment_details.get("percentage") else ''}
                                 {f'<li>Type: {encroachment_details.get("type", "Unknown")}</li>' if encroachment_details and encroachment_details.get("type") else ''}
                                 {f'<li>Detection Date: {encroachment_details.get("detected_date", "N/A")}</li>' if encroachment_details and encroachment_details.get("detected_date") else ''}
-<<<<<<< HEAD
-=======
                                 {f'{alert_details_html}' if alert_details_html else ''}
->>>>>>> f977997 (Initial clean import of Erodai project)
                                 {f'</ul>' if encroachment_details else ''}
                             </div>
                             
@@ -252,15 +237,12 @@ class EmailService:
             WATER BODY ENCROACHMENT ALERT
             
             An encroachment has been detected on: {water_body_name}
-<<<<<<< HEAD
-=======
 
             Water Body Details:
             {water_body_details_text or '- No additional water body details available'}
 
             Encroachment Details:
             {alert_details_text or '- No additional encroachment details available'}
->>>>>>> f977997 (Initial clean import of Erodai project)
             
             This is an automated alert from the Erodai Water Bodies Monitoring System.
             
@@ -342,11 +324,7 @@ class EmailService:
             
             # Create message
             msg = MIMEMultipart("alternative")
-<<<<<<< HEAD
-            msg["Subject"] = "⚠️ ENCROACHMENT ALERT REPORT - Watery Water Bodies Monitoring System"
-=======
             msg["Subject"] = f"🚨 URGENT: Encroachment Alert Report - {total_bodies} Water Bodies Affected"
->>>>>>> f977997 (Initial clean import of Erodai project)
             msg["From"] = f"{settings.smtp_from_name} <{settings.smtp_user}>"
             msg["To"] = recipient_email
             
@@ -380,20 +358,12 @@ class EmailService:
                 <body>
                     <div class="container">
                         <div class="header">
-<<<<<<< HEAD
-                            <h1>⚠️ ENCROACHMENT ALERT REPORT</h1>
-=======
                             <h1>🚨 URGENT: ENCROACHMENT ALERT REPORT</h1>
->>>>>>> f977997 (Initial clean import of Erodai project)
                             <p style="margin: 10px 0 0 0; font-size: 14px;">Watery Water Bodies Monitoring System</p>
                         </div>
                         
                         <div class="section">
-<<<<<<< HEAD
-                            <p>Dear Monitoring Officer,</p>
-=======
                             <p>Dear <strong>Monitoring Officer</strong>,</p>
->>>>>>> f977997 (Initial clean import of Erodai project)
                             <p>This is an urgent alert report regarding encroachment detected in monitored water bodies across Erode District.</p>
                             
                             <div class="critical-box">
@@ -474,10 +444,7 @@ class EmailService:
                 water_level_pct = float(wb.get('water_level_percent', 85))
                 severity = wb.get('severity', 'HIGH')
                 severity_icon = '🟠' if severity == 'HIGH' else '🔴'
-<<<<<<< HEAD
-=======
                 report_date = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
->>>>>>> f977997 (Initial clean import of Erodai project)
                 
                 html_body += f"""
                             <div class="detail-section">
@@ -491,10 +458,7 @@ class EmailService:
                                 <p><strong>Nearby Population:</strong> {wb.get('nearby_population', 'N/A')}</p>
                                 <p><strong>NDVI Index:</strong> {wb.get('ndvi_index', 'N/A')}</p>
                                 <p><strong>NDBI Index:</strong> {wb.get('ndbi_index', 'N/A')}</p>
-<<<<<<< HEAD
-=======
                                 <p><strong>Report Generated:</strong> {report_date} IST</p>
->>>>>>> f977997 (Initial clean import of Erodai project)
                             </div>
                 """
             
@@ -503,11 +467,7 @@ class EmailService:
                         
                         <div class="section">
                             <h2 style="color: #0284C7; margin-top: 0;">📊 Access Dashboard</h2>
-<<<<<<< HEAD
-                            <p><a href="http://localhost:3000/dashboard" style="background: #0284C7; color: white; padding: 10px 20px; text-decoration: none; border-radius: 4px; display: inline-block;">Open Monitoring Dashboard</a></p>
-=======
                             <p><a href="http://localhost:3001/" style="background: #0284C7; color: white; padding: 10px 20px; text-decoration: none; border-radius: 4px; display: inline-block;">Open Monitoring Dashboard</a></p>
->>>>>>> f977997 (Initial clean import of Erodai project)
                         </div>
                         
                         <div class="section">
@@ -547,27 +507,6 @@ class EmailService:
             
             # Create plain text version
             text_body = f"""
-<<<<<<< HEAD
-            ⚠️ ENCROACHMENT ALERT REPORT
-            Watery Water Bodies Monitoring System
-            
-            SUMMARY:
-            - Total Encroached Bodies: {total_bodies}
-            - Average Encroachment: {avg_encroachment:.1f}%
-            - Total Area: {total_area:.1f} sq km
-            - Nearby Population: {total_population}
-            
-            ENCROACHED WATER BODIES:
-            """
-            
-            for idx, wb in enumerate(water_bodies_data, 1):
-                text_body += f"\n{idx}. {wb.get('name', 'Unknown')} - {float(wb.get('encroachment_percent', 0)):.1f}% encroached"
-            
-            text_body += f"""
-            
-            Report Generated: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')} IST
-            This is an automated alert from Watery Monitoring System.
-=======
             🚨 URGENT: ENCROACHMENT ALERT REPORT
             Watery Water Bodies Monitoring System
             
@@ -616,7 +555,6 @@ class EmailService:
 
             Report Generated: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')} IST
             This is an automated alert. Do not reply to this email. Contact your administrator for support.
->>>>>>> f977997 (Initial clean import of Erodai project)
             """
             
             # Attach both text and HTML versions
