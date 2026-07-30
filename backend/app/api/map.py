@@ -259,6 +259,7 @@ async def compare_water_areas(
         # Send email alert if NEW encroachment detected (changed from False to True)
         if is_encroached and not was_encroached_before:
             try:
+<<<<<<< HEAD
                 # Get all active users to send emails
                 active_users = db.query(User).filter(User.is_active == True).all()
                 recipient_emails = [user.email for user in active_users if user.email]
@@ -289,6 +290,45 @@ async def compare_water_areas(
                     
                     logger.info(f"✉️  Encroachment alert sent for '{water_body.name}': "
                                f"{stats['sent']} emails sent, {stats['failed']} failed")
+=======
+                encroachment_details = {
+                    "water_body_details": {
+                        "name": water_body.name,
+                        "body_type": water_body.body_type or "Unknown",
+                        "area_sq_km": water_body.area_sq_km,
+                        "location": water_body.location,
+                        "alert_threshold": water_body.alert_threshold,
+                        "urbanization_level": water_body.urbanization_level,
+                        "is_seasonal": water_body.is_seasonal,
+                        "last_monitored": water_body.last_monitored,
+                        "encroached_at": water_body.encroached_at,
+                    },
+                    "water_body": water_body.name,
+                    "type": water_body.body_type or "Unknown",
+                    "area": f"{water_body.area_sq_km} sq km",
+                    "water_loss": f"{comparison['change_percent']:.1f}%",
+                    "threshold": f"{comparison['threshold_applied']:.1f}%",
+                    "reason": comparison.get("reason", "Exceeds seasonal threshold"),
+                    "classification": comparison.get("classification", "encroachment"),
+                    "detected_date": datetime.utcnow().strftime("%Y-%m-%d %H:%M:%S")
+                }
+
+                if urbanization.get("likely_urbanization"):
+                    encroachment_details["urbanization"] = urbanization.get("encroachment_type", "Unknown")
+
+                stats = EmailService.send_encroachment_alert_to_active_users(
+                    db=db,
+                    water_body_name=water_body.name,
+                    encroachment_details=encroachment_details,
+                )
+
+                logger.info(f"✉️  Encroachment alert sent for '{water_body.name}': "
+                            f"{stats['sent']} emails sent, {stats['failed']} failed")
+
+                report_stats = EmailService.send_encroachment_report_to_active_users(db=db)
+                logger.info(f"📄  Encroachment report sent for '{water_body.name}': "
+                            f"{report_stats['sent']} reports sent, {report_stats['failed']} failed")
+>>>>>>> f977997 (Initial clean import of Erodai project)
             except Exception as e:
                 logger.error(f"❌ Failed to send encroachment email alert: {str(e)}")
                 # Don't fail the API call if email fails - just log it

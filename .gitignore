@@ -218,3 +218,8 @@ key.properties
 .project
 .settings/
 bin/
+<<<<<<< HEAD
+=======
+
+venv/
+>>>>>>> f977997 (Initial clean import of Erodai project)

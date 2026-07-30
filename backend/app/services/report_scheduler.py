@@ -13,23 +13,40 @@ logger = logging.getLogger(__name__)
 
 
 class ReportScheduler:
+<<<<<<< HEAD
     """Handles scheduled sending of encroachment reports"""
+=======
+    """Handles scheduled sending of encroachment alerts"""
+>>>>>>> f977997 (Initial clean import of Erodai project)
     
     def __init__(self):
         self.running = False
         self.task = None
+<<<<<<< HEAD
+=======
+
+    @staticmethod
+    def _target_time() -> time:
+        """Return the scheduled delivery time."""
+        return time(9, 0, 0)
+>>>>>>> f977997 (Initial clean import of Erodai project)
     
     async def start(self):
         """Start the scheduler"""
         self.running = True
         self.task = asyncio.create_task(self._run_scheduler())
+<<<<<<< HEAD
         logger.info("📅 Encroachment report scheduler started")
+=======
+        logger.info("📅 Encroachment alert scheduler started")
+>>>>>>> f977997 (Initial clean import of Erodai project)
     
     async def stop(self):
         """Stop the scheduler"""
         self.running = False
         if self.task:
             self.task.cancel()
+<<<<<<< HEAD
         logger.info("📅 Encroachment report scheduler stopped")
     
     async def _run_scheduler(self):
@@ -51,12 +68,31 @@ class ReportScheduler:
                     await asyncio.sleep(60)
                 else:
                     # Check every 5 minutes
+=======
+        logger.info("📅 Encroachment alert scheduler stopped")
+    
+    async def _run_scheduler(self):
+        """Main scheduler loop"""
+        self.running = True
+        while self.running:
+            try:
+                now = datetime.now()
+                current_time = now.time()
+                target_time = self._target_time()
+                
+                if current_time.hour == target_time.hour and current_time.minute == target_time.minute:
+                    logger.info("⏰ Scheduled time reached - sending encroachment alerts")
+                    await self._send_alerts()
+                    await asyncio.sleep(60)
+                else:
+>>>>>>> f977997 (Initial clean import of Erodai project)
                     await asyncio.sleep(300)
                     
             except Exception as e:
                 logger.error(f"Error in report scheduler: {str(e)}")
                 await asyncio.sleep(300)
     
+<<<<<<< HEAD
     @staticmethod
     async def _send_reports():
         """Send encroachment reports to all users"""
@@ -95,12 +131,27 @@ class ReportScheduler:
             logger.info(f"Found {len(water_bodies_data)} encroached water bodies")
             
             # Get active users
+=======
+    async def _send_alerts(self):
+        """Send encroachment alert emails to all active users."""
+        db = SessionLocal()
+        try:
+            logger.info("🔍 Fetching encroached water bodies for scheduled alerts...")
+            
+            encroached_bodies = db.query(WaterBody).filter(WaterBody.is_encroached == True).all()
+            
+            if not encroached_bodies:
+                logger.info("No encroached water bodies found for scheduled alert delivery")
+                return
+            
+>>>>>>> f977997 (Initial clean import of Erodai project)
             users = db.query(User).filter(User.is_active == True).all()
             
             if not users:
                 logger.warning("No active users found")
                 return
             
+<<<<<<< HEAD
             logger.info(f"Sending report to {len(users)} users...")
             
             sent = 0
@@ -127,6 +178,53 @@ class ReportScheduler:
         finally:
             db.close()
 
+=======
+            sent = 0
+            failed = 0
+            
+            for water_body in encroached_bodies:
+                try:
+                    encroachment_details = {
+                        "water_body_details": {
+                            "name": water_body.name,
+                            "body_type": water_body.body_type or "Unknown",
+                            "area_sq_km": water_body.area_sq_km,
+                            "location": water_body.location,
+                            "alert_threshold": water_body.alert_threshold,
+                            "urbanization_level": water_body.urbanization_level,
+                            "is_seasonal": water_body.is_seasonal,
+                            "last_monitored": water_body.last_monitored,
+                            "encroached_at": water_body.encroached_at,
+                        },
+                        "name": water_body.name,
+                        "type": water_body.body_type or "Unknown",
+                        "area": water_body.area_sq_km,
+                        "detected_date": datetime.utcnow().strftime("%Y-%m-%d %H:%M:%S"),
+                    }
+
+                    stats = EmailService.send_encroachment_alert_to_active_users(
+                        db=db,
+                        water_body_name=water_body.name,
+                        encroachment_details=encroachment_details,
+                    )
+                    sent += stats.get("sent", 0)
+                    failed += stats.get("failed", 0)
+                except Exception as e:
+                    logger.error(f"Error sending alert for {water_body.name}: {str(e)}")
+                    failed += 1
+            
+            logger.info(f"📊 Alert send completed: {sent} sent, {failed} failed")
+            
+        except Exception as e:
+            logger.error(f"Error sending scheduled alerts: {str(e)}")
+        finally:
+            db.close()
+
+    async def _send_reports(self):
+        """Backward-compatible wrapper for the old report path."""
+        await self._send_alerts()
+
+>>>>>>> f977997 (Initial clean import of Erodai project)
 
 # Global scheduler instance
 scheduler = ReportScheduler()

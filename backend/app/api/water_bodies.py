@@ -24,6 +24,38 @@ async def create_water_body(
     db.add(db_water_body)
     db.commit()
     db.refresh(db_water_body)
+<<<<<<< HEAD
+=======
+
+    if db_water_body.is_encroached:
+        try:
+            encroachment_details = {
+                "water_body_details": {
+                    "name": db_water_body.name,
+                    "body_type": db_water_body.body_type or "Unknown",
+                    "area_sq_km": db_water_body.area_sq_km,
+                    "location": db_water_body.location,
+                    "alert_threshold": db_water_body.alert_threshold,
+                    "urbanization_level": db_water_body.urbanization_level,
+                    "is_seasonal": db_water_body.is_seasonal,
+                    "last_monitored": db_water_body.last_monitored,
+                    "encroached_at": db_water_body.encroached_at,
+                },
+                "name": db_water_body.name,
+                "type": db_water_body.body_type or "Unknown",
+                "area": db_water_body.area_sq_km,
+                "detected_date": datetime.utcnow().strftime("%Y-%m-%d %H:%M:%S"),
+            }
+            EmailService.send_encroachment_alert_to_active_users(
+                db=db,
+                water_body_name=db_water_body.name,
+                encroachment_details=encroachment_details,
+            )
+            EmailService.send_encroachment_report_to_active_users(db=db)
+        except Exception as e:
+            logger.error(f"Failed to send creation-time encroachment notification: {str(e)}")
+
+>>>>>>> f977997 (Initial clean import of Erodai project)
     return db_water_body
 
 
@@ -88,6 +120,7 @@ async def update_water_body(
     # Send encroachment alert if status changed to encroached
     if is_encroached_changing:
         try:
+<<<<<<< HEAD
             # Get list of recipient emails
             recipient_emails = []
             
@@ -114,6 +147,39 @@ async def update_water_body(
                 
                 logger.info(f"Encroachment notification sent for {water_body.name}: "
                            f"{stats['sent']} successful, {stats['failed']} failed")
+=======
+            encroachment_details = {
+                "water_body_details": {
+                    "name": water_body.name,
+                    "body_type": water_body.body_type or "Unknown",
+                    "area_sq_km": water_body.area_sq_km,
+                    "location": water_body.location,
+                    "alert_threshold": water_body.alert_threshold,
+                    "urbanization_level": water_body.urbanization_level,
+                    "is_seasonal": water_body.is_seasonal,
+                    "last_monitored": water_body.last_monitored,
+                    "encroached_at": water_body.encroached_at,
+                },
+                "name": water_body.name,
+                "type": water_body.body_type or "Unknown",
+                "area": water_body.area_sq_km,
+                "detected_date": datetime.utcnow().strftime("%Y-%m-%d %H:%M:%S")
+            }
+
+            stats = EmailService.send_encroachment_alert_to_active_users(
+                db=db,
+                water_body_name=water_body.name,
+                encroachment_details=encroachment_details,
+            )
+
+            if stats["sent"] or stats["failed"]:
+                logger.info(f"Encroachment notification sent for {water_body.name}: "
+                           f"{stats['sent']} successful, {stats['failed']} failed")
+
+            report_stats = EmailService.send_encroachment_report_to_active_users(db=db)
+            logger.info(f"Encroachment report sent for {water_body.name}: "
+                        f"{report_stats['sent']} successful, {report_stats['failed']} failed")
+>>>>>>> f977997 (Initial clean import of Erodai project)
         except Exception as e:
             logger.error(f"Failed to send encroachment notification: {str(e)}")
     
