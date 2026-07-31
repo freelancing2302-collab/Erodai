@@ -157,11 +157,14 @@ async def login(credentials: LoginRequest, db: Session = Depends(get_db)):
                     EmailService._build_report_water_body_data(wb, db=db)
                     for wb in encroached_bodies
                 ]
-                EmailService.send_encroachment_report(
+                email_sent = EmailService.send_encroachment_report(
                     recipient_email=user.email,
                     water_bodies_data=water_bodies_data,
                 )
-                logger.info(f"✉️  Encroachment report email sent to {user.email} on login")
+                if email_sent:
+                    logger.info(f"✉️  Encroachment report email sent to {user.email} on login")
+                else:
+                    logger.error(f"❌ Encroachment report email failed for {user.email} on login")
             else:
                 logger.info(f"No encroached water bodies found for login email to {user.email}")
         except Exception as e:
